@@ -17,15 +17,15 @@ public class Config
 {
 	DBugLogger logger = Robot.logger;
 	
-	public boolean RobotA; //true if it's robot A, false if it's robot B
+	public boolean robotA; //true if it's robot A, false if it's robot B
 	
+	/**
+	 * Exception that is raised when a certain key is not found in config
+	 */
 	public class ConfigException extends Exception
 	{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
+		private static final long serialVersionUID = -658181374612523772L;
+		
 		public ConfigException (String key)
 		{
 			super(key);
@@ -37,14 +37,8 @@ public class Config
 	
 	public Config ()
 	{
-		if (variables == null || constants == null)
-		{
-			variables = new Hashtable <String, Object>();
-			constants = new Hashtable <String, Object>();
-			
-			determineRobotA();
-			deserializationInit();
-		}
+		determineRobotA();
+		deserializationInit();	
 	}
 	
 	/*
@@ -63,16 +57,17 @@ public class Config
 			
 			if (line.equals("Robot A"))
 			{
-				RobotA = true;
+				robotA = true;
 			}
 			else
 			{
-				RobotA = false;
+				robotA = false;
 			}
 		} 
 		catch (FileNotFoundException e) 
 		{
 			logger.severe(e);
+			System.exit(1);
 		} 
 		catch (IOException e) 
 		{
@@ -121,16 +116,27 @@ public class Config
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "resource" })
+	@SuppressWarnings("unchecked")
 	private void deserializationInit () 
 	{
+		String configPath;
+		
+		if (robotA)
+		{
+			configPath = "/home/lvuser/config/configFileA.ser";
+		}
+		else
+		{
+			configPath = "/home/lvuser/config/configFileB.ser";
+		}
+		
 		try 
 		{
-			FileInputStream in = new FileInputStream("/home/lvuser/config/configFile.ser");
+			FileInputStream in = new FileInputStream(configPath);
 			ObjectInputStream input = new ObjectInputStream(in);
 			
-			constants = (Hashtable<String, Object>) input.readObject();
-			variables = (Hashtable<String, Object>) input.readObject();
+			constants = (Hashtable <String, Object>) input.readObject();
+			variables = (Hashtable <String, Object>) input.readObject();
 			
 			Set <Entry <String, Object> > set;
 			
@@ -147,16 +153,10 @@ public class Config
 			{
 				logger.info(" Key = " + entry.getKey() + " Value = " + entry.getValue());
 			}
+			
+			input.close();
 		} 
-		catch (FileNotFoundException e) 
-		{
-			logger.severe(e);
-		}
-		catch (IOException e)
-		{
-			logger.severe(e);
-		} 
-		catch (ClassNotFoundException e) 
+		catch (Exception e) 
 		{
 			logger.severe(e);
 		}

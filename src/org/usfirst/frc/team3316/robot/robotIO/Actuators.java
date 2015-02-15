@@ -53,7 +53,7 @@ public class Actuators
 			/*
 			 * Chassis
 			 */
-			if (Robot.config.RobotA)
+			if (Robot.config.robotA)
 			{
 				chassisMotorControllerLeft1 = new VictorSP ((int) config.get("CHASSIS_MOTOR_CONTROLLER_LEFT_1"));
 				chassisMotorControllerLeft2 = new VictorSP ((int) config.get("CHASSIS_MOTOR_CONTROLLER_LEFT_2"));
