@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive 
+public class FieldOrientedDrivePIDRotation extends FieldOrientedDrive
 {
 	private class PIDSourceRotation implements PIDSource
 	{
@@ -32,8 +32,8 @@ public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive
 	private double setpointRotation;
 	
 	private double outputRotation;
-	
-	public RobotOrientedDrivePIDRotation ()
+
+	public FieldOrientedDrivePIDRotation ()
 	{
 		pidControllerRotation = new PIDController(0, 
 												  0, 
@@ -49,10 +49,9 @@ public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive
 		super.initialize();
 		pidControllerRotation.enable();
 	}
-	
 	protected void set ()
 	{
-		setRobotVector(getRightX(), getRightY());
+		setFieldVector(getRightX(), getRightY(), Robot.chassis.getHeading());
 		
 		updatePIDVariables();
 		setPIDControllerRotationSetpoint();

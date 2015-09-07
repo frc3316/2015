@@ -1,15 +1,23 @@
 package org.usfirst.frc.team3316.robot.chassis.commands;
 
+import java.util.function.DoubleSupplier;
+
 import org.usfirst.frc.team3316.robot.Robot;
+import org.usfirst.frc.team3316.robot.config.Config;
 import org.usfirst.frc.team3316.robot.config.Config.ConfigException;
+import org.usfirst.frc.team3316.robot.logger.DBugLogger;
 
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive 
+public class RotationPID
 {
+	protected Config config = Robot.config;
+	protected DBugLogger logger = Robot.logger;
+	
+	private DoubleSupplier setpointSource; 
+	
 	private class PIDSourceRotation implements PIDSource
 	{
 		public double pidGet() 
@@ -33,8 +41,14 @@ public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive
 	
 	private double outputRotation;
 	
-	public RobotOrientedDrivePIDRotation ()
+	public RotationPID ()
 	{
+		this ( () -> {return TankDrive.getLeftX();} );
+	}
+	
+	public RotationPID (DoubleSupplier setpointSource)
+	{
+		this.setpointSource = setpointSource;
 		pidControllerRotation = new PIDController(0, 
 												  0, 
 												  0, 
@@ -44,21 +58,18 @@ public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive
 		pidControllerRotation.setOutputRange(-1, 1);
 	}
 	
-	protected void initialize ()
+	public void setSetpointSource (DoubleSupplier setpointSource)
 	{
-		super.initialize();
-		pidControllerRotation.enable();
+		this.setpointSource = setpointSource;
 	}
 	
-	protected void set ()
+	public double get ()
 	{
-		setRobotVector(getRightX(), getRightY());
-		
 		updatePIDVariables();
+		
 		setPIDControllerRotationSetpoint();
-		SmartDashboard.putNumber("setpointRotation" , setpointRotation);
-		SmartDashboard.putNumber("outputRotation" , outputRotation);
-		setRotation(outputRotation);
+		
+		return outputRotation;
 	}
 	
 	private void updatePIDVariables ()
@@ -69,7 +80,6 @@ public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive
 					(double) config.get("chassis_RobotOrientedDrivePIDRotation_PIDControllerRotation_KP") / 1000, 
 					(double) config.get("chassis_RobotOrientedDrivePIDRotation_PIDControllerRotation_KI") / 1000, 
 					(double) config.get("chassis_RobotOrientedDrivePIDRotation_PIDControllerRotation_KD") / 1000);
-			
 			pidControllerRotation.setAbsoluteTolerance(
 					(double) config.get("chassis_RobotOrientedDrivePIDRotation_PIDControllerRotation_AbsoluteTolerance"));
 			
@@ -83,12 +93,12 @@ public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive
 		}
 	}
 	
-	protected void setPIDControllerRotationSetpoint ()
+	private void setPIDControllerRotationSetpoint ()
 	{
 		try
 		{
 			setpointScale = (double) config.get("chassis_RobotOrientedDrivePIDRotation_SetpointScale");
-			setpointRotation = getLeftX() * setpointScale;
+			setpointRotation = setpointSource.getAsDouble() * setpointScale;
 			pidControllerRotation.setSetpoint(setpointRotation);
 		}
 		catch (ConfigException e)
@@ -96,10 +106,12 @@ public class RobotOrientedDrivePIDRotation extends RobotOrientedDrive
 			logger.severe(e);
 		}
 	}
-    
-	protected void end() 
-    {
-    	super.end();
-    	pidControllerRotation.disable();
-    }
+	
+	public void enable(){
+		pidControllerRotation.enable();
+	}
+	
+	public void disable(){
+		pidControllerRotation.disable();
+	}
 }

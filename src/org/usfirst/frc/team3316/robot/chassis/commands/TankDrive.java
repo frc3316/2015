@@ -1,17 +1,21 @@
 package org.usfirst.frc.team3316.robot.chassis.commands;
 
 import org.usfirst.frc.team3316.robot.Robot;
+import org.usfirst.frc.team3316.robot.config.Config;
 import org.usfirst.frc.team3316.robot.config.Config.ConfigException;
+import org.usfirst.frc.team3316.robot.logger.DBugLogger;
 
 import edu.wpi.first.wpilibj.Joystick;
 
 public class TankDrive extends Drive 
 {
-	protected Joystick joystickLeft, joystickRight;
+	protected static Joystick joystickLeft, joystickRight;
 	
-	boolean invertY, invertX;
+	static boolean invertY, invertX;
 	
-	double lowPass = 0.0;
+	static double lowPass = 0.0;
+	protected static Config config = Robot.config;
+	protected static DBugLogger logger = Robot.logger;
 	
 	public TankDrive ()
 	{
@@ -26,7 +30,7 @@ public class TankDrive extends Drive
 		right = getRightY();
 	}
 	
-	protected double getLeftY ()
+	protected static double getLeftY ()
 	{
 		updateConfigVariables();
 		double y = lowPass(joystickLeft.getY());
@@ -37,7 +41,7 @@ public class TankDrive extends Drive
 		return y;
 	}
 	
-	protected double getLeftX ()
+	protected static double getLeftX ()
 	{
 		updateConfigVariables();
 		double x = lowPass(joystickLeft.getX());
@@ -48,7 +52,7 @@ public class TankDrive extends Drive
 		return x;
 	}
 	
-	protected double getRightY ()
+	protected static double getRightY ()
 	{
 		updateConfigVariables();
 		double y = lowPass(joystickRight.getY());
@@ -59,7 +63,7 @@ public class TankDrive extends Drive
 		return y; 
 	}
 	
-	protected double getRightX() 
+	protected static double getRightX() 
 	{
 		updateConfigVariables();
 		double x = lowPass(joystickRight.getX());
@@ -70,7 +74,7 @@ public class TankDrive extends Drive
 		return x;
 	}
 	
-	private void updateConfigVariables ()
+	private static void updateConfigVariables ()
 	{
 		try
 		{
@@ -85,7 +89,7 @@ public class TankDrive extends Drive
 		}
 	}
 	
-	private double lowPass (double x)
+	private static double lowPass (double x)
 	{
 		if (Math.abs(x) < lowPass)
 		{

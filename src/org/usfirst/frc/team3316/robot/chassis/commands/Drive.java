@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.command.Command;
  */
 public abstract class Drive extends Command 
 {
-	protected Config config = Robot.config;
-	protected DBugLogger logger = Robot.logger;
+	protected static Config config = Robot.config;
+	protected static DBugLogger logger = Robot.logger;
 	
 	protected double left = 0, right = 0, center = 0;
 	
